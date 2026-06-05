@@ -83,24 +83,83 @@ to enforce:
 | Request **without** a `Content-Type` header | rejected with `400` (`FST_ERR_QUERY_MISSING_CONTENT_TYPE`) |
 | Request **without** a body | rejected with `400` (`FST_ERR_QUERY_EMPTY_BODY`) |
 | Unsupported media type | `415` (Fastify's native content-type handling) |
+| Cacheable responses / `Cache-Control` | via [`@fastify/caching`](https://github.com/fastify/fastify-caching) — see below |
+| Conditional requests (`ETag` / `304`) | via [`@fastify/etag`](https://github.com/fastify/fastify-etag) — ETag from results |
+| `Content-Location` on 2xx | set by your handler — see below |
+| Range / partial requests | not implemented (spec §2.8) |
 
-### Out of scope
+## Caching & conditional requests
 
-The following parts of the specification are concerns of the application or of
-intermediaries/caches, not of this plugin, and are left to you:
+`QUERY` responses are **cacheable** and support **conditional requests**, just
+like `GET`. This plugin follows Fastify's model: **core enables the method;
+caching is composed from the ecosystem** — exactly as you would cache `GET`.
+There is no bespoke cache here.
 
-- **Caching & cache key** — the spec requires a cache key that incorporates the
-  request content. This is a cache/intermediary concern.
-- **`Content-Location`** — a successful response _may_ point at a `GET`-able
-  resource for the results. Set it in your handler when appropriate.
-- **Conditional and Range requests** — handle via `ETag`/`If-*` and your query
-  format's own paging in your handler.
+### Conditional requests (`ETag` / `304`) with `@fastify/etag`
 
-## Safety, idempotency & caching
+[`@fastify/etag`](https://github.com/fastify/fastify-etag) computes an `ETag`
+from the **response payload** and answers `If-None-Match` with `304`. Because the
+ETag is derived from the **results**, two `QUERY` requests with different bodies
+naturally produce different ETags — so conditional handling is correct for
+`QUERY` with no extra configuration.
 
-`QUERY` is **safe** (it does not request a change to the target resource),
-**idempotent**, and its response is **cacheable**. Treat your `QUERY` handlers
-accordingly — do not mutate state.
+```js
+import fastifyHttpQuery from '@thecodespace/fastify-http-query'
+import etag from '@fastify/etag'
+
+await app.register(fastifyHttpQuery)
+await app.register(etag)
+
+app.query('/search', async (request) => runSearch(request.body))
+// QUERY /search {"q":"a"}                         -> 200, ETag: "…"
+// QUERY /search {"q":"a"}  If-None-Match: "…"      -> 304 Not Modified
+// QUERY /search {"q":"b"}  If-None-Match: "<a>"    -> 200 (different results)
+```
+
+### `Cache-Control` with `@fastify/caching`
+
+[`@fastify/caching`](https://github.com/fastify/fastify-caching) manages
+`Cache-Control`/`Expires` and provides `reply.etag()`:
+
+```js
+import caching from '@fastify/caching'
+
+await app.register(caching, { privacy: caching.privacy.PRIVATE, expiresIn: 3600 })
+// QUERY responses now carry: Cache-Control: private, max-age=3600
+```
+
+### ⚠️ Shared-cache caveat (body-keying)
+
+The spec requires a cache key that **incorporates the request body**. Origin-side
+tools above key on the **results** and are safe. However, **shared intermediary
+caches (CDNs/proxies) key on method + URL only** and are *not* body-aware — they
+can serve the wrong result for a different body sent to the same URL. So do not
+let an untrusted shared cache store `QUERY` responses: keep them `private` /
+`no-store` at the edge, or place a body-aware cache in front. (Fastify likewise
+does not manage downstream caches for `GET`.)
+
+### `Content-Location` (spec §2.3)
+
+A successful response _may_ name a `GET`-able resource for the results. Set it in
+your handler:
+
+```js
+app.query('/search', async (request, reply) => {
+  const { id, results } = await runSearch(request.body)
+  reply.header('content-location', `/search/results/${id}`)
+  return results
+})
+```
+
+### Not implemented
+
+- **Range/partial requests** (spec §2.8) — the spec itself notes byte ranges
+  "offer little value" for query results; use your query format's own paging.
+
+## Safety & idempotency
+
+`QUERY` is **safe** (it does not request a change to the target resource) and
+**idempotent**. Treat your `QUERY` handlers accordingly — do not mutate state.
 
 ## License
 
