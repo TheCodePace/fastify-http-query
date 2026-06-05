@@ -1,7 +1,7 @@
-# @thecodespace/fastify-http-query
+# @thecodepace/fastify-http-query
 
-[![CI](https://github.com/thecodespace/fastify-http-query/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/thecodespace/fastify-http-query/actions/workflows/ci.yml)
-[![NPM version](https://img.shields.io/npm/v/@thecodespace/fastify-http-query.svg?style=flat)](https://www.npmjs.com/package/@thecodespace/fastify-http-query)
+[![CI](https://github.com/thecodepace/fastify-http-query/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/thecodepace/fastify-http-query/actions/workflows/ci.yml)
+[![NPM version](https://img.shields.io/npm/v/@thecodepace/fastify-http-query.svg?style=flat)](https://www.npmjs.com/package/@thecodepace/fastify-http-query)
 [![neostandard javascript style](https://img.shields.io/badge/code_style-neostandard-brightgreen?style=flat)](https://github.com/neostandard/neostandard)
 
 Fastify HTTP `QUERY` plugin; with this you can enable the HTTP `QUERY` method in Fastify.
@@ -15,7 +15,7 @@ IETF draft
 ## Install
 
 ```
-npm i @thecodespace/fastify-http-query
+npm i @thecodepace/fastify-http-query
 ```
 
 ### Requirements
@@ -42,7 +42,7 @@ and exposes the `query` route shorthand:
 
 ```js
 import Fastify from 'fastify'
-import fastifyHttpQuery from '@thecodespace/fastify-http-query'
+import fastifyHttpQuery from '@thecodepace/fastify-http-query'
 
 const app = Fastify()
 await app.register(fastifyHttpQuery)
@@ -104,7 +104,7 @@ naturally produce different ETags — so conditional handling is correct for
 `QUERY` with no extra configuration.
 
 ```js
-import fastifyHttpQuery from '@thecodespace/fastify-http-query'
+import fastifyHttpQuery from '@thecodepace/fastify-http-query'
 import etag from '@fastify/etag'
 
 await app.register(fastifyHttpQuery)

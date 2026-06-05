@@ -21,7 +21,7 @@ declare module 'fastify' {
   > {
     /**
      * Register a route that responds to the HTTP `QUERY` method.
-     * Enabled by the `@thecodespace/fastify-http-query` plugin.
+     * Enabled by the `@thecodepace/fastify-http-query` plugin.
      */
     query: RouteShorthandMethod<RawServer, RawRequest, RawReply, TypeProvider, Logger>;
   }

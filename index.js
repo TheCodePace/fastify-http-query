@@ -47,6 +47,6 @@ async function fastifyHttpQuery (fastify) {
 
 export default fp(fastifyHttpQuery, {
   fastify: '5.x',
-  name: '@thecodespace/fastify-http-query',
+  name: '@thecodepace/fastify-http-query',
 })
 export { fastifyHttpQuery }

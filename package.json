@@ -1,5 +1,5 @@
 {
-  "name": "@thecodespace/fastify-http-query",
+  "name": "@thecodepace/fastify-http-query",
   "version": "0.0.0",
   "description": "Plugin to enable HTTP query method in Fastify.",
   "main": "index.js",
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/thecodespace/fastify-http-query.git"
+    "url": "git+https://github.com/thecodepace/fastify-http-query.git"
   },
   "keywords": [
     "fastify",
@@ -25,9 +25,9 @@
   "author": "Luca Del Puppo",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/thecodespace/fastify-http-query/issues"
+    "url": "https://github.com/thecodepace/fastify-http-query/issues"
   },
-  "homepage": "https://github.com/thecodespace/fastify-http-query#readme",
+  "homepage": "https://github.com/thecodepace/fastify-http-query#readme",
   "devDependencies": {
     "@fastify/caching": "^9.0.3",
     "@fastify/etag": "^6.1.0",
