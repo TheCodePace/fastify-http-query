@@ -110,7 +110,7 @@ import etag from '@fastify/etag'
 await app.register(fastifyHttpQuery)
 await app.register(etag)
 
-app.query('/search', async (request) => runSearch(request.body))
+app.query('/search', (request) => runSearch(request.body))
 // QUERY /search {"q":"a"}                         -> 200, ETag: "…"
 // QUERY /search {"q":"a"}  If-None-Match: "…"      -> 304 Not Modified
 // QUERY /search {"q":"b"}  If-None-Match: "<a>"    -> 200 (different results)
