@@ -44,7 +44,7 @@ describe('registration', () => {
     await app.ready()
 
     assert.ok(app.supportedMethods.includes('QUERY'))
-    assert.equal(typeof app.query, 'function')
+    assert.strictEqual(typeof app.query, 'function')
   })
 
   test('does not re-register QUERY when it is already supported', async (t) => {
@@ -63,8 +63,8 @@ describe('registration', () => {
       payload: JSON.stringify({ q: 'guard' })
     })
 
-    assert.equal(res.statusCode, 200)
-    assert.deepEqual(res.json(), { echo: { q: 'guard' } })
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(res.json(), { echo: { q: 'guard' } })
   })
 
   test('the `query` shorthand is available in nested plugins', async (t) => {
@@ -81,8 +81,8 @@ describe('registration', () => {
       payload: '{}'
     })
 
-    assert.equal(res.statusCode, 200)
-    assert.deepEqual(res.json(), { ok: true })
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(res.json(), { ok: true })
   })
 })
 
@@ -99,8 +99,8 @@ describe('valid requests', () => {
       payload: JSON.stringify({ q: 'fastify' })
     })
 
-    assert.equal(res.statusCode, 200)
-    assert.deepEqual(res.json(), { echo: { q: 'fastify' } })
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(res.json(), { echo: { q: 'fastify' } })
   })
 
   test('accepts a Content-Type with parameters (charset)', async (t) => {
@@ -115,8 +115,8 @@ describe('valid requests', () => {
       payload: JSON.stringify({ q: 'fastify' })
     })
 
-    assert.equal(res.statusCode, 200)
-    assert.deepEqual(res.json(), { echo: { q: 'fastify' } })
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(res.json(), { echo: { q: 'fastify' } })
   })
 
   test('accepts a body sent with transfer-encoding instead of content-length', async (t) => {
@@ -134,8 +134,8 @@ describe('valid requests', () => {
       payload: JSON.stringify({ q: 'chunked' })
     })
 
-    assert.equal(res.statusCode, 200)
-    assert.deepEqual(res.json(), { echo: { q: 'chunked' } })
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(res.json(), { echo: { q: 'chunked' } })
   })
 
   test('validates the body against a route schema', async (t) => {
@@ -157,8 +157,8 @@ describe('valid requests', () => {
       headers: { 'content-type': 'application/json' },
       payload: JSON.stringify({ q: 'fastify' })
     })
-    assert.equal(ok.statusCode, 200)
-    assert.deepEqual(ok.json(), { echo: { q: 'fastify' } })
+    assert.strictEqual(ok.statusCode, 200)
+    assert.deepStrictEqual(ok.json(), { echo: { q: 'fastify' } })
 
     // Body parsing and validation still run for QUERY: an invalid body is a
     // validation error, distinct from the plugin's own 400s.
@@ -168,8 +168,8 @@ describe('valid requests', () => {
       headers: { 'content-type': 'application/json' },
       payload: JSON.stringify({})
     })
-    assert.equal(invalid.statusCode, 400)
-    assert.equal(invalid.json().code, 'FST_ERR_VALIDATION')
+    assert.strictEqual(invalid.statusCode, 400)
+    assert.strictEqual(invalid.json().code, 'FST_ERR_VALIDATION')
   })
 
   test('does not interfere with other HTTP methods', async (t) => {
@@ -179,8 +179,8 @@ describe('valid requests', () => {
 
     const res = await app.inject({ method: 'GET', url: '/search' })
 
-    assert.equal(res.statusCode, 200)
-    assert.deepEqual(res.json(), { via: 'get' })
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(res.json(), { via: 'get' })
   })
 })
 
@@ -196,8 +196,8 @@ describe('spec enforcement', () => {
       payload: 'anything'
     })
 
-    assert.equal(res.statusCode, 400)
-    assert.deepEqual(res.json(), {
+    assert.strictEqual(res.statusCode, 400)
+    assert.deepStrictEqual(res.json(), {
       statusCode: 400,
       code: 'FST_ERR_QUERY_MISSING_CONTENT_TYPE',
       error: 'Bad Request',
@@ -216,8 +216,8 @@ describe('spec enforcement', () => {
       headers: { 'content-type': 'application/json' }
     })
 
-    assert.equal(res.statusCode, 400)
-    assert.deepEqual(res.json(), {
+    assert.strictEqual(res.statusCode, 400)
+    assert.deepStrictEqual(res.json(), {
       statusCode: 400,
       code: 'FST_ERR_QUERY_EMPTY_BODY',
       error: 'Bad Request',
@@ -236,8 +236,8 @@ describe('spec enforcement', () => {
       headers: { 'content-type': 'application/json', 'content-length': '0' }
     })
 
-    assert.equal(res.statusCode, 400)
-    assert.equal(res.json().code, 'FST_ERR_QUERY_EMPTY_BODY')
+    assert.strictEqual(res.statusCode, 400)
+    assert.strictEqual(res.json().code, 'FST_ERR_QUERY_EMPTY_BODY')
   })
 })
 
@@ -253,8 +253,8 @@ describe('over the wire (real HTTP parser)', () => {
       body: JSON.stringify({ q: 'wire' })
     })
 
-    assert.equal(res.statusCode, 200)
-    assert.deepEqual(JSON.parse(res.body), { echo: { q: 'wire' } })
+    assert.strictEqual(res.statusCode, 200)
+    assert.deepStrictEqual(JSON.parse(res.body), { echo: { q: 'wire' } })
   })
 
   test('enforcement also applies to real requests', async (t) => {
@@ -265,30 +265,30 @@ describe('over the wire (real HTTP parser)', () => {
 
     const res = await wireQuery(app, { body: 'anything' })
 
-    assert.equal(res.statusCode, 400)
-    assert.equal(JSON.parse(res.body).code, 'FST_ERR_QUERY_MISSING_CONTENT_TYPE')
+    assert.strictEqual(res.statusCode, 400)
+    assert.strictEqual(JSON.parse(res.body).code, 'FST_ERR_QUERY_MISSING_CONTENT_TYPE')
   })
 })
 
 describe('exported errors', () => {
   test('default and named exports are the same plugin', () => {
-    assert.equal(fastifyHttpQuery, namedExport)
+    assert.strictEqual(fastifyHttpQuery, namedExport)
   })
 
   test('MissingContentTypeError', () => {
     const err = new MissingContentTypeError()
     assert.ok(err instanceof Error)
-    assert.equal(err.code, 'FST_ERR_QUERY_MISSING_CONTENT_TYPE')
-    assert.equal(err.statusCode, 400)
-    assert.equal(err.message, 'QUERY requests must include a Content-Type header')
+    assert.strictEqual(err.code, 'FST_ERR_QUERY_MISSING_CONTENT_TYPE')
+    assert.strictEqual(err.statusCode, 400)
+    assert.strictEqual(err.message, 'QUERY requests must include a Content-Type header')
   })
 
   test('EmptyBodyError', () => {
     const err = new EmptyBodyError()
     assert.ok(err instanceof Error)
-    assert.equal(err.code, 'FST_ERR_QUERY_EMPTY_BODY')
-    assert.equal(err.statusCode, 400)
-    assert.equal(err.message, 'QUERY requests must include a request body')
+    assert.strictEqual(err.code, 'FST_ERR_QUERY_EMPTY_BODY')
+    assert.strictEqual(err.statusCode, 400)
+    assert.strictEqual(err.message, 'QUERY requests must include a request body')
   })
 })
 
@@ -309,10 +309,10 @@ describe('caching is left to the application', () => {
       payload: '{}'
     })
 
-    assert.equal(res.statusCode, 200)
-    assert.equal(res.headers['cache-control'], undefined)
-    assert.equal(res.headers.vary, undefined)
-    assert.equal(res.headers['content-location'], undefined)
+    assert.strictEqual(res.statusCode, 200)
+    assert.strictEqual(res.headers['cache-control'], undefined)
+    assert.strictEqual(res.headers.vary, undefined)
+    assert.strictEqual(res.headers['content-location'], undefined)
   })
 
   test('preserves cache-related headers set by the handler', async (t) => {
@@ -331,9 +331,9 @@ describe('caching is left to the application', () => {
       payload: JSON.stringify({ q: 'fastify' })
     })
 
-    assert.equal(res.statusCode, 200)
-    assert.equal(res.headers['cache-control'], 'max-age=60')
-    assert.equal(res.headers['content-location'], '/search/results/1')
-    assert.deepEqual(res.json(), { echo: { q: 'fastify' } })
+    assert.strictEqual(res.statusCode, 200)
+    assert.strictEqual(res.headers['cache-control'], 'max-age=60')
+    assert.strictEqual(res.headers['content-location'], '/search/results/1')
+    assert.deepStrictEqual(res.json(), { echo: { q: 'fastify' } })
   })
 })

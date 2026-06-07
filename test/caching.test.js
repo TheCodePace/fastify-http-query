@@ -36,7 +36,7 @@ describe('@fastify/etag works with QUERY (conditional requests)', () => {
 
     const res = await query(app, { payload: JSON.stringify({ q: 'a' }) })
 
-    assert.equal(res.statusCode, 200)
+    assert.strictEqual(res.statusCode, 200)
     assert.ok(res.headers.etag, 'expected an etag header')
   })
 
@@ -51,8 +51,8 @@ describe('@fastify/etag works with QUERY (conditional requests)', () => {
       headers: { 'if-none-match': etag }
     })
 
-    assert.equal(second.statusCode, 304)
-    assert.equal(second.body, '')
+    assert.strictEqual(second.statusCode, 304)
+    assert.strictEqual(second.body, '')
   })
 
   test('a different body yields a different result, ETag and a 200', async (t) => {
@@ -61,7 +61,7 @@ describe('@fastify/etag works with QUERY (conditional requests)', () => {
     const a = await query(app, { payload: JSON.stringify({ q: 'a' }) })
     const b = await query(app, { payload: JSON.stringify({ q: 'b' }) })
 
-    assert.notEqual(a.headers.etag, b.headers.etag)
+    assert.notStrictEqual(a.headers.etag, b.headers.etag)
 
     // The ETag of body "a" must NOT satisfy a conditional request for body "b".
     const conditional = await query(app, {
@@ -69,8 +69,8 @@ describe('@fastify/etag works with QUERY (conditional requests)', () => {
       headers: { 'if-none-match': a.headers.etag }
     })
 
-    assert.equal(conditional.statusCode, 200)
-    assert.equal(conditional.headers.etag, b.headers.etag)
+    assert.strictEqual(conditional.statusCode, 200)
+    assert.strictEqual(conditional.headers.etag, b.headers.etag)
   })
 })
 
@@ -89,8 +89,8 @@ describe('@fastify/caching works with QUERY (Cache-Control & etag store)', () =>
 
     const res = await query(app, { payload: JSON.stringify({ q: 'a' }) })
 
-    assert.equal(res.statusCode, 200)
-    assert.equal(res.headers['cache-control'], 'private, max-age=3600')
+    assert.strictEqual(res.statusCode, 200)
+    assert.strictEqual(res.headers['cache-control'], 'private, max-age=3600')
   })
 
   test('reply.etag() drives a 304 via the etag store', async (t) => {
@@ -106,14 +106,14 @@ describe('@fastify/caching works with QUERY (Cache-Control & etag store)', () =>
     t.after(() => app.close())
 
     const first = await query(app, { payload: JSON.stringify({ q: 'a' }) })
-    assert.equal(first.statusCode, 200)
-    assert.equal(first.headers.etag, 'a-stable-etag')
+    assert.strictEqual(first.statusCode, 200)
+    assert.strictEqual(first.headers.etag, 'a-stable-etag')
 
     const second = await query(app, {
       payload: JSON.stringify({ q: 'a' }),
       headers: { 'if-none-match': 'a-stable-etag' }
     })
-    assert.equal(second.statusCode, 304)
+    assert.strictEqual(second.statusCode, 304)
   })
 })
 
@@ -153,14 +153,14 @@ describe('over the wire (real HTTP parser + @fastify/etag)', () => {
     await app.listen({ port: 0, host: '127.0.0.1' })
 
     const first = await wireQuery(app, { body: JSON.stringify({ q: 'a' }) })
-    assert.equal(first.statusCode, 200)
+    assert.strictEqual(first.statusCode, 200)
     assert.ok(first.etag)
 
     const second = await wireQuery(app, {
       body: JSON.stringify({ q: 'a' }),
       headers: { 'if-none-match': first.etag }
     })
-    assert.equal(second.statusCode, 304)
-    assert.equal(second.body, '')
+    assert.strictEqual(second.statusCode, 304)
+    assert.strictEqual(second.body, '')
   })
 })
