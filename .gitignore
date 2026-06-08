@@ -153,3 +153,6 @@ yarn.lock
 
 # test tap report
 out.tap
+
+# tokensave index directory
+.tokensave/
