@@ -1,0 +1,16 @@
+# Runs before the commit is created.
+pre-commit:
+  parallel: true
+  commands:
+    lint:
+      glob: "*.{js,mjs,cjs,ts}"
+      run: npx eslint {staged_files}
+      stage_fixed: true
+    test:
+      run: npm test
+
+# Runs on the prepared commit message.
+commit-msg:
+  commands:
+    commitlint:
+      run: npx --no-install commitlint --edit {1}
