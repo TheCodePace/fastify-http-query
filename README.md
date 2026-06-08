@@ -167,11 +167,17 @@ This project uses [Conventional Commits](https://www.conventionalcommits.org/),
 enforced locally by [lefthook](https://lefthook.com/) + [commitlint](https://commitlint.js.org/)
 and in CI by `.github/workflows/commitlint.yml`.
 
-- `commit-msg` hook → `commitlint` (config in `commitlint.config.js`,
+- `commit-msg` hook → `commitlint` (config in `commitlint.config.mjs`,
   extends `@commitlint/config-conventional`).
 - `pre-commit` hook → `eslint` on staged files, then `npm test`.
-- On every PR, the `Lint commits` workflow lints every commit in the PR
-  with `commitlint --from <base> --to <head>`.
+- On every PR, the `Lint commits` workflow runs **two jobs**:
+  - `commitlint` — lints every commit in the PR with
+    `commitlint --from <base> --to <head>`.
+  - `pr-title` — lints the PR title itself with
+    [`wagoid/commitlint-github-action`](https://github.com/wagoid/commitlint-github-action),
+    using the same `commitlint.config.mjs`. This matters when the PR is
+    squash- or rebase-merged, since the title becomes the commit message
+    on `main`.
 
 Allowed types follow the conventional preset (`feat`, `fix`, `chore`,
 `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `revert`).
