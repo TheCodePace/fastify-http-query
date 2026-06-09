@@ -1,6 +1,6 @@
 {
   "name": "@thecodepace/fastify-http-query",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Plugin to enable HTTP query method in Fastify.",
   "main": "index.js",
   "type": "module",
