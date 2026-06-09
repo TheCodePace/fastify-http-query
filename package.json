@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/thecodepace/fastify-http-query.git"
+    "url": "git+https://github.com/TheCodePace/fastify-http-query.git"
   },
   "keywords": [
     "fastify",
@@ -28,9 +28,9 @@
   "author": "Luca Del Puppo",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/thecodepace/fastify-http-query/issues"
+    "url": "https://github.com/TheCodePace/fastify-http-query/issues"
   },
-  "homepage": "https://github.com/thecodepace/fastify-http-query#readme",
+  "homepage": "https://github.com/TheCodePace/fastify-http-query#readme",
   "devDependencies": {
     "@commitlint/cli": "^21.0.2",
     "@commitlint/config-conventional": "^21.0.2",
