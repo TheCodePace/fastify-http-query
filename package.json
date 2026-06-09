@@ -13,7 +13,6 @@
     "unit": "c8 --100 node --test",
     "release": "standard-version",
     "release:dry": "standard-version --dry-run",
-    "release:first": "standard-version --first-release",
     "prepare": "lefthook install"
   },
   "repository": {
