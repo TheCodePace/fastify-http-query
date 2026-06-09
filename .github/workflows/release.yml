@@ -27,6 +27,9 @@ jobs:
           # --skip.commit/--skip.tag leave optic to commit on the release branch.
           bump-command: 'git fetch --tags --unshallow || git fetch --tags; npm install && npm run release -- --skip.commit --skip.tag'
           get-version-command: "node -p \"require('./package.json').version\""
+          # Conventional-commit message so the release commit passes commitlint.
+          # "{version}" is substituted by the action (e.g. -> chore(release): v0.0.1).
+          commit-message: 'chore(release): {version}'
           notify-linked-issues: 'true'
 
       # When the release PR is merged, optic publishes the GitHub release with
