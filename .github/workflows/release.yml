@@ -2,16 +2,6 @@ name: release
 
 on:
   workflow_dispatch:
-    inputs:
-      semver:
-        description: The semver bump to apply
-        required: true
-        default: patch
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
   pull_request:
     types: [closed]
 
@@ -28,6 +18,30 @@ jobs:
       - uses: nearform-actions/optic-release-automation-action@v4
         with:
           publish-mode: oidc
-          semver: ${{ github.event.inputs.semver }}
-          bump-command: 'npm run release -- --release-as'
+          # No manual bump: standard-version derives the bump (and CHANGELOG)
+          # from the conventional commits. semver is left empty so the action
+          # doesn't append a bump type to the command below.
+          semver: ''
+          # optic does a shallow, no-tags checkout, so un-shallow and fetch tags
+          # first; otherwise standard-version can't compute the bump/changelog.
+          # --skip.commit/--skip.tag leave optic to commit on the release branch.
+          bump-command: 'git fetch --tags --unshallow || git fetch --tags; npm install && npm run release -- --skip.commit --skip.tag'
+          get-version-command: "node -p \"require('./package.json').version\""
           notify-linked-issues: 'true'
+
+      # When the release PR is merged, optic publishes the GitHub release with
+      # GitHub's auto-generated notes. Replace them with the matching
+      # CHANGELOG.md section so the release shows the conventional-commit
+      # changelog produced by standard-version.
+      - name: Sync changelog into the GitHub release
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == true && startsWith(github.event.pull_request.title, '[OPTIC-RELEASE-AUTOMATION]') }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          awk '/^(## |### )\[?[0-9]/{c++; if (c>1) exit} c>=1{print}' CHANGELOG.md > release-notes.md
+          if [ -s release-notes.md ]; then
+            gh release edit "v$VERSION" --notes-file release-notes.md
+          else
+            echo "No CHANGELOG.md section found for v$VERSION; keeping auto-generated notes."
+          fi
