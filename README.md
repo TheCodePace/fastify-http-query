@@ -187,37 +187,38 @@ After cloning, run `npm install` (or `npx lefthook install` manually if
 
 ## Releasing
 
-Releases are driven by [`standard-version`](https://github.com/conventional-changelog/standard-version),
-which reads the Conventional Commits history to determine the next SemVer bump,
-updates `package.json`, generates `CHANGELOG.md`, and creates a Git tag.
+Releases are **automated** by the `release` workflow
+(`.github/workflows/release.yml`), which uses
+[`nearform-actions/optic-release-automation-action`](https://github.com/nearform-actions/optic-release-automation-action).
+The version bump and `CHANGELOG.md` are derived from the Conventional Commits
+history by [`standard-version`](https://github.com/conventional-changelog/standard-version);
+publishing to npm uses OIDC ([trusted publishing](https://docs.npmjs.com/trusted-publishers)),
+so no npm token is stored in the repo.
 
-Available scripts:
+### Release flow
+
+1. Merge your feature/fix PRs into `main` as usual.
+2. The `release` workflow runs and `standard-version` computes the next SemVer
+   bump (and changelog) from the commits since the last tag. The action opens a
+   **release PR** titled `[OPTIC-RELEASE-AUTOMATION] …` containing the version
+   bump and `CHANGELOG.md` update.
+3. Review the release PR. When you **merge** it, the action:
+   - Tags the release and publishes the package to npm via OIDC.
+   - Creates the GitHub release; a follow-up step replaces the auto-generated
+     notes with the matching `CHANGELOG.md` section.
+
+You can also trigger the workflow manually from the Actions tab
+(`workflow_dispatch`).
+
+### Previewing locally
+
+Two scripts are available to inspect the release without touching the automated
+flow:
 
 | Script | Purpose |
 | --- | --- |
 | `npm run release:dry` | Preview the next version, changelog, and tag without writing anything. |
-| `npm run release` | Bump the version, update the changelog, and create the tag. |
-| `npm run release:first` | Tag the very first release (e.g. `1.0.0`) without re-bumping `package.json`. |
-
-### Release flow
-
-1. Make sure `main` is clean and all changes are merged.
-2. Run `npm run release:dry` to confirm the next version, the changelog entry,
-   and the commit/tag messages look right.
-3. Run `npm run release`. This will:
-   - Bump `package.json` according to the commits since the last tag.
-   - Regenerate `CHANGELOG.md`.
-   - Create a release commit and an annotated `vX.Y.Z` tag (the
-     `pre-commit` lefthook hook — `eslint` + `npm test` — runs against the
-     release commit; pass `--no-verify` only if you know why).
-4. Push the branch and the tag:
-   ```sh
-   git push --follow-tags origin main
-   ```
-5. Publish to npm:
-   ```sh
-   npm publish
-   ```
+| `npm run release` | Run `standard-version` locally (bump, changelog, commit, tag). Normally left to the workflow. |
 
 ### Forcing a specific bump
 
