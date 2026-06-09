@@ -185,6 +185,47 @@ Allowed types follow the conventional preset (`feat`, `fix`, `chore`,
 After cloning, run `npm install` (or `npx lefthook install` manually if
 `ignore-scripts=true` is set in `.npmrc`) to install the Git hooks.
 
+## Releasing
+
+Releases are driven by [`standard-version`](https://github.com/conventional-changelog/standard-version),
+which reads the Conventional Commits history to determine the next SemVer bump,
+updates `package.json`, generates `CHANGELOG.md`, and creates a Git tag.
+
+Available scripts:
+
+| Script | Purpose |
+| --- | --- |
+| `npm run release:dry` | Preview the next version, changelog, and tag without writing anything. |
+| `npm run release` | Bump the version, update the changelog, and create the tag. |
+| `npm run release:first` | Tag the very first release (e.g. `1.0.0`) without re-bumping `package.json`. |
+
+### Release flow
+
+1. Make sure `main` is clean and all changes are merged.
+2. Run `npm run release:dry` to confirm the next version, the changelog entry,
+   and the commit/tag messages look right.
+3. Run `npm run release`. This will:
+   - Bump `package.json` according to the commits since the last tag.
+   - Regenerate `CHANGELOG.md`.
+   - Create a release commit and an annotated `vX.Y.Z` tag (the
+     `pre-commit` lefthook hook — `eslint` + `npm test` — runs against the
+     release commit; pass `--no-verify` only if you know why).
+4. Push the branch and the tag:
+   ```sh
+   git push --follow-tags origin main
+   ```
+5. Publish to npm:
+   ```sh
+   npm publish
+   ```
+
+### Forcing a specific bump
+
+To override the auto-detected bump, pass `--release-as` to `standard-version`
+(e.g. `npx standard-version --release-as minor`). This is useful for the
+occasional case where a `feat:` was missed or you want a hotfix `patch` on top
+of a feature-only window.
+
 ## License
 
 Licensed under [MIT](./LICENSE).
