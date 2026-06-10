@@ -189,43 +189,38 @@ After cloning, run `npm install` (or `npx lefthook install` manually if
 
 Releases are **automated** by the `release` workflow
 (`.github/workflows/release.yml`), which uses
-[`nearform-actions/optic-release-automation-action`](https://github.com/nearform-actions/optic-release-automation-action).
-The version bump and `CHANGELOG.md` are derived from the Conventional Commits
-history by [`standard-version`](https://github.com/conventional-changelog/standard-version);
-publishing to npm uses OIDC ([trusted publishing](https://docs.npmjs.com/trusted-publishers)),
-so no npm token is stored in the repo.
+[`release-it`](https://github.com/release-it/release-it) with the
+[`@release-it/conventional-changelog`](https://github.com/release-it/conventional-changelog)
+plugin. The version bump and `CHANGELOG.md` are derived from the
+Conventional Commits history, and the GitHub release is created from the
+same changelog. Publishing to npm uses OIDC
+([trusted publishing](https://docs.npmjs.com/trusted-publishers)), so no npm
+token is stored in the repo.
 
 ### Release flow
 
 1. Merge your feature/fix PRs into `main` as usual.
-2. The `release` workflow runs and `standard-version` computes the next SemVer
-   bump (and changelog) from the commits since the last tag. The action opens a
-   **release PR** titled `[OPTIC-RELEASE-AUTOMATION] …` containing the version
-   bump and `CHANGELOG.md` update.
-3. Review the release PR. When you **merge** it, the action:
-   - Tags the release and publishes the package to npm via OIDC.
-   - Creates the GitHub release; a follow-up step replaces the auto-generated
-     notes with the matching `CHANGELOG.md` section.
-
-You can also trigger the workflow manually from the Actions tab
-(`workflow_dispatch`).
+2. Trigger the `release` workflow from the Actions tab
+   (`workflow_dispatch`).
+3. `release-it` computes the next SemVer bump from the commits since the
+   last tag, updates `CHANGELOG.md`, commits (`chore(release): vX.Y.Z`),
+   tags, pushes, creates the GitHub release (with the conventional-commit
+   notes), and publishes the package to npm via OIDC — all in one run.
 
 ### Previewing locally
-
-Two scripts are available to inspect the release without touching the automated
-flow:
 
 | Script | Purpose |
 | --- | --- |
 | `npm run release:dry` | Preview the next version, changelog, and tag without writing anything. |
-| `npm run release` | Run `standard-version` locally (bump, changelog, commit, tag). Normally left to the workflow. |
+| `npm run release` | Run `release-it` interactively (prompts for bump override). |
+| `npm run release:ci` | Run `release-it` non-interactively. Used by the workflow. |
 
 ### Forcing a specific bump
 
-To override the auto-detected bump, pass `--release-as` to `standard-version`
-(e.g. `npx standard-version --release-as minor`). This is useful for the
-occasional case where a `feat:` was missed or you want a hotfix `patch` on top
-of a feature-only window.
+To override the auto-detected bump, pass `--release-version` to `release-it`
+(e.g. `npx release-it --release-version=0.1.0`). This is useful for the
+occasional case where a `feat:` was missed or you want a hotfix `patch` on
+top of a feature-only window.
 
 ## License
 
