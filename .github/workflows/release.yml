@@ -31,6 +31,14 @@ jobs:
           node-version: lts/*
           package-manager-cache: false
       - run: npm ci || npm install
+      # release-it commits the version bump + CHANGELOG update and pushes
+      # the tag. GitHub Actions runners ship without a configured git
+      # identity, so configure one from the actor that dispatched the
+      # workflow (per release-it CI docs).
+      - name: Configure git identity
+        run: |
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

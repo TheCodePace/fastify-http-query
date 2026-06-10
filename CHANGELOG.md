@@ -1,6 +1,13 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. See [release-it](https://github.com/release-it/release-it) and [Conventional Commits](https://www.conventionalcommits.org/) for commit guidelines.
+
+## [0.0.3](https://github.com/TheCodePace/fastify-http-query/compare/v0.0.2...v0.0.3) (2026-06-10)
+
+
+### Bug Fixes
+
+* **release:** add npm.skipChecks so OIDC publish works in CI ([#15](https://github.com/TheCodePace/fastify-http-query/issues/15)) ([36e1ede](https://github.com/TheCodePace/fastify-http-query/commit/36e1ede99f36ef83013d09df0ddc60fdac9a5986))
 
 ### [0.0.2](https://github.com/TheCodePace/fastify-http-query/compare/v0.0.1...v0.0.2) (2026-06-09)
 
