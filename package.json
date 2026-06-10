@@ -12,7 +12,7 @@
     "typescript": "tstyche",
     "unit": "c8 --100 node --test",
     "release": "release-it",
-    "release:dry": "release-it --dry-run",
+    "release:dry": "release-it --ci --dry-run --no-npm.publish",
     "release:ci": "release-it --ci",
     "prepare": "lefthook install"
   },
