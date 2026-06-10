@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.4](https://github.com/TheCodePace/fastify-http-query/compare/v0.0.2...v0.0.4) (2026-06-10)
+
+### Bug Fixes
+
+* **release:** add npm.skipChecks so OIDC publish works in CI ([#15](https://github.com/TheCodePace/fastify-http-query/issues/15)) ([36e1ede](https://github.com/TheCodePace/fastify-http-query/commit/36e1ede99f36ef83013d09df0ddc60fdac9a5986))
+* **release:** configure git identity in CI and recover 0.0.3 ([#16](https://github.com/TheCodePace/fastify-http-query/issues/16)) ([a9a8f32](https://github.com/TheCodePace/fastify-http-query/commit/a9a8f32417c612f4d61379c3d51d7de069e1c2ff)), closes [#15](https://github.com/TheCodePace/fastify-http-query/issues/15) [#15](https://github.com/TheCodePace/fastify-http-query/issues/15)
+
 All notable changes to this project will be documented in this file. See [release-it](https://github.com/release-it/release-it) and [Conventional Commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ## [0.0.3](https://github.com/TheCodePace/fastify-http-query/compare/v0.0.2...v0.0.3) (2026-06-10)
