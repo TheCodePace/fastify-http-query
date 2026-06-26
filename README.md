@@ -4,6 +4,8 @@
 [![NPM version](https://img.shields.io/npm/v/@thecodepace/fastify-http-query.svg?style=flat)](https://www.npmjs.com/package/@thecodepace/fastify-http-query)
 [![neostandard javascript style](https://img.shields.io/badge/code_style-neostandard-brightgreen?style=flat)](https://github.com/neostandard/neostandard)
 
+> Documentation site: <https://thecodepace.github.io/fastify-http-query/>
+
 Fastify HTTP `QUERY` plugin; with this you can enable the HTTP `QUERY` method in Fastify.
 
 `QUERY` is a **safe, idempotent, cacheable** HTTP method that — unlike `GET` —
