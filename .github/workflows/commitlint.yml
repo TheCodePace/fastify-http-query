@@ -23,13 +23,21 @@ jobs:
         with:
           node-version: lts/*
           package-manager-cache: false
-      - run: npm ci || npm install
+      - run: npm install --legacy-peer-deps
+      - name: Select commitlint config
+        id: config
+        run: |
+          if [ "${{ github.event.pull_request.user.login }}" = "dependabot[bot]" ]; then
+            echo "path=./commitlint.config.dependabot.mjs" >> "$GITHUB_OUTPUT"
+          else
+            echo "path=./commitlint.config.mjs" >> "$GITHUB_OUTPUT"
+          fi
       - name: Lint last commit (push)
         if: github.event_name == 'push'
         run: npx commitlint --last --verbose
       - name: Lint PR commits (pull_request)
         if: github.event_name == 'pull_request'
-        run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+        run: npx commitlint --config "${{ steps.config.outputs.path }}" --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
 
   pr-title:
     runs-on: ubuntu-latest
@@ -42,9 +50,9 @@ jobs:
         with:
           node-version: lts/*
           package-manager-cache: false
-      - run: npm ci || npm install
+      - run: npm install --legacy-peer-deps
       - uses: wagoid/commitlint-github-action@v6
         with:
-          configFile: commitlint.config.mjs
+          configFile: ${{ github.event.pull_request.user.login == 'dependabot[bot]' && 'commitlint.config.dependabot.mjs' || 'commitlint.config.mjs' }}
         env:
           NODE_PATH: ${{ github.workspace }}/node_modules
