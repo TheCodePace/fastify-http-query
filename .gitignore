@@ -156,3 +156,7 @@ out.tap
 
 # tokensave index directory
 .tokensave/
+
+# VitePress build output and cache
+docs/.vitepress/dist
+docs/.vitepress/cache

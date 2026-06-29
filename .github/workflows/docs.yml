@@ -1,0 +1,62 @@
+name: Deploy docs site to Pages
+
+# Builds the VitePress site under docs/ and deploys it to GitHub Pages.
+# Adapted from the official VitePress deploy template:
+# https://vitepress.dev/guide/deploy#github-pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/docs.yml'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+
+# Allow only one concurrent deployment; do NOT cancel in-progress deploys
+# because we want production deployments to finish cleanly.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          package-manager-cache: false
+      - name: Install dependencies
+        run: npm i
+      - name: Build with VitePress
+        run: npm run docs:build
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs/.vitepress/dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
+    name: Deploy
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
