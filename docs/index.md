@@ -2,7 +2,7 @@
 layout: home
 title: "@thecodepace/fastify-http-query"
 hero:
-  name: "@thecodepace/fastify-http-query"
+  name: "fastify-http-query"
   text: Fastify HTTP QUERY method plugin
   tagline: Enable the safe, idempotent, cacheable HTTP QUERY method in Fastify.
   actions:

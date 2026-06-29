@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: '@thecodepace/fastify-http-query',
+  title: 'fastify-http-query',
   description: 'Fastify plugin that enables the HTTP QUERY method.',
   base: '/fastify-http-query/',
   lastUpdated: true,
