@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: lts/*
           package-manager-cache: false
-      - run: npm install --legacy-peer-deps
+      - run: npm ci || npm install
       - name: Select commitlint config
         id: config
         run: |
@@ -50,7 +50,7 @@ jobs:
         with:
           node-version: lts/*
           package-manager-cache: false
-      - run: npm install --legacy-peer-deps
+      - run: npm ci || npm install
       - uses: wagoid/commitlint-github-action@v6
         with:
           configFile: ${{ github.event.pull_request.user.login == 'dependabot[bot]' && 'commitlint.config.dependabot.mjs' || 'commitlint.config.mjs' }}
