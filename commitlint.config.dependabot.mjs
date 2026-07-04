@@ -5,7 +5,7 @@ export default {
     // first content line routinely exceeds the 100-char cap. The full rule
     // set is otherwise identical to commitlint.config.mjs — humans stay strict.
     'body-max-line-length': [0],
-    'header-max-line-length': [0],
+    'header-max-length': [0],
     'body-leading-blank': [0],
     'footer-leading-blank': [0],
   },
