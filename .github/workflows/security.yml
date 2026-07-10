@@ -9,7 +9,7 @@ name: Security
 #   Security tab and notify the maintainer; on repositories without
 #   GitHub Advanced Security, alert visibility is governed by repo-level
 #   settings.
-# - betterleaks runs with --redact 100 so any leaked secret values are
+# - betterleaks runs with --redact=100 so any leaked secret values are
 #   fully redacted in the workflow logs.
 on:
   pull_request:
@@ -92,7 +92,7 @@ jobs:
           args: >-
             git .
             --platform github
-            --redact 100
+            --redact=100
             --no-banner
             --report-format=sarif
             --report-path=betterleaks.sarif
