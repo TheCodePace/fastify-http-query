@@ -1,24 +1,11 @@
 name: Security
 
-# Runs static application security testing (CodeQL) and secret scanning
-# (betterleaks) on every pull request and once a day at 03:00 UTC.
-#
-# Visibility is restricted to maintainer-facing channels:
-# - CodeQL and betterleaks SARIF uploads are tagged under the
-#   "security/maintainer-only" category so findings surface in the
-#   Security tab and notify the maintainer; on repositories without
-#   GitHub Advanced Security, alert visibility is governed by repo-level
-#   settings.
-# - betterleaks runs with --redact=100 so any leaked secret values are
-#   fully redacted in the workflow logs.
 on:
   pull_request:
   schedule:
     - cron: '0 3 * * *' # 3 AM UTC every day
   workflow_dispatch:
 
-# Minimal default token permissions for the whole workflow.
-# Jobs extend these where a tool requires more.
 permissions:
   contents: read
   pull-requests: read
@@ -26,8 +13,6 @@ permissions:
 
 concurrency:
   group: security-${{ github.event.pull_request.head.label || github.ref }}
-  # Only cancel in-progress runs for pull_request events; scheduled runs
-  # must complete so a stale scan doesn't get killed mid-day.
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -59,15 +44,11 @@ jobs:
         uses: github/codeql-action/analyze@v4
         with:
           category: security/maintainer-only
-          # Force SARIF upload on scheduled runs (default skips schedules).
           upload: always
 
   secrets:
     name: Secret scan (betterleaks)
     runs-on: ubuntu-latest
-    # Needs security-events: write to upload SARIF. Does not post PR
-    # comments, so pull-requests / checks write permissions are not
-    # required.
     permissions:
       contents: read
       security-events: write
@@ -75,17 +56,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
-          # Full history so betterleaks can scan all commits, not just
-          # the diff against the base ref.
           fetch-depth: 0
 
-      # Use the pre-built official GHCR image instead of `betterleaks/
-      # betterleaks@main`. The upstream Dockerfile-only repo fails to
-      # build under GitHub Actions because `git describe` runs in a
-      # build context that has no `.git/` directory. The pre-built
-      # image (built via goreleaser.Dockerfile) ships a static binary
-      # and avoids that path entirely.
-      # https://github.com/betterleaks/betterleaks/issues/225
       - name: betterleaks
         uses: docker://ghcr.io/betterleaks/betterleaks:latest
         with:
@@ -96,9 +68,6 @@ jobs:
             --report-format=sarif
             --report-path=betterleaks.sarif
 
-      # Upload SARIF even when the scan step exits non-zero (which it
-      # does by design when it finds a secret) so findings still surface
-      # in the Security tab.
       - name: Upload betterleaks SARIF
         if: always()
         uses: github/codeql-action/upload-sarif@v4
