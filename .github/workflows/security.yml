@@ -4,13 +4,13 @@ name: Security
 # (betterleaks) on every pull request and once a day at 03:00 UTC.
 #
 # Visibility is restricted to maintainer-facing channels:
-# - CodeQL SARIF uploads are tagged under the "security/maintainer-only"
-#   category so findings surface in the Security tab and notify the
-#   maintainer; on repositories without GitHub Advanced Security, alert
-#   visibility is governed by repo-level settings.
-# - betterleaks posts findings as a discrete PR status check rather than
-#   as inline PR comments, keeping secret details off the public PR
-#   timeline.
+# - CodeQL and betterleaks SARIF uploads are tagged under the
+#   "security/maintainer-only" category so findings surface in the
+#   Security tab and notify the maintainer; on repositories without
+#   GitHub Advanced Security, alert visibility is governed by repo-level
+#   settings.
+# - betterleaks runs with --redact 100 so any leaked secret values are
+#   fully redacted in the workflow logs.
 on:
   pull_request:
   schedule:
@@ -65,10 +65,12 @@ jobs:
   secrets:
     name: Secret scan (betterleaks)
     runs-on: ubuntu-latest
+    # Needs security-events: write to upload SARIF. Does not post PR
+    # comments, so pull-requests / checks write permissions are not
+    # required.
     permissions:
       contents: read
-      pull-requests: read
-      checks: write
+      security-events: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -77,11 +79,30 @@ jobs:
           # the diff against the base ref.
           fetch-depth: 0
 
+      # Use the pre-built official GHCR image instead of `betterleaks/
+      # betterleaks@main`. The upstream Dockerfile-only repo fails to
+      # build under GitHub Actions because `git describe` runs in a
+      # build context that has no `.git/` directory. The pre-built
+      # image (built via goreleaser.Dockerfile) ships a static binary
+      # and avoids that path entirely.
+      # https://github.com/betterleaks/betterleaks/issues/225
       - name: betterleaks
-        uses: betterleaks/betterleaks@main
+        uses: docker://ghcr.io/betterleaks/betterleaks:latest
         with:
-          # pr-status: findings are reported as a check run on the PR but
-          # NOT as inline comments. The check run is the only PR-visible
-          # surface; raw findings live in the workflow logs and the
-          # maintainer's email notifications.
-          comment_mode: pr-status
+          args: >-
+            git .
+            --platform github
+            --redact 100
+            --no-banner
+            --report-format=sarif
+            --report-path=betterleaks.sarif
+
+      # Upload SARIF even when the scan step exits non-zero (which it
+      # does by design when it finds a secret) so findings still surface
+      # in the Security tab.
+      - name: Upload betterleaks SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: betterleaks.sarif
+          category: security/maintainer-only
