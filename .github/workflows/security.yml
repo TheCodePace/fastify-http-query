@@ -90,8 +90,7 @@ jobs:
         uses: docker://ghcr.io/betterleaks/betterleaks:latest
         with:
           args: >-
-            git .
-            --platform github
+            dir .
             --redact=100
             --no-banner
             --report-format=sarif
