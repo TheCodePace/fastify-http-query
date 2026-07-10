@@ -1,0 +1,87 @@
+name: Security
+
+# Runs static application security testing (CodeQL) and secret scanning
+# (betterleaks) on every pull request and once a day at 03:00 UTC.
+#
+# Visibility is restricted to maintainer-facing channels:
+# - CodeQL SARIF uploads are tagged under the "security/maintainer-only"
+#   category so findings surface in the Security tab and notify the
+#   maintainer; on repositories without GitHub Advanced Security, alert
+#   visibility is governed by repo-level settings.
+# - betterleaks posts findings as a discrete PR status check rather than
+#   as inline PR comments, keeping secret details off the public PR
+#   timeline.
+on:
+  pull_request:
+  schedule:
+    - cron: '0 3 * * *' # 3 AM UTC every day
+  workflow_dispatch:
+
+# Minimal default token permissions for the whole workflow.
+# Jobs extend these where a tool requires more.
+permissions:
+  contents: read
+  pull-requests: read
+  security-events: write
+
+concurrency:
+  group: security-${{ github.event.pull_request.head.label || github.ref }}
+  # Only cancel in-progress runs for pull_request events; scheduled runs
+  # must complete so a stale scan doesn't get killed mid-day.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['javascript']
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v4
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: security/maintainer-only
+          # Force SARIF upload on scheduled runs (default skips schedules).
+          upload: always
+
+  secrets:
+    name: Secret scan (betterleaks)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      checks: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          # Full history so betterleaks can scan all commits, not just
+          # the diff against the base ref.
+          fetch-depth: 0
+
+      - name: betterleaks
+        uses: betterleaks/betterleaks@main
+        with:
+          # pr-status: findings are reported as a check run on the PR but
+          # NOT as inline comments. The check run is the only PR-visible
+          # surface; raw findings live in the workflow logs and the
+          # maintainer's email notifications.
+          comment_mode: pr-status
