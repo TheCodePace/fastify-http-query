@@ -42,12 +42,12 @@ jobs:
       pull-requests: write
       id-token: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           # release-it needs the full history + tags to compute the bump
           # and write the CHANGELOG.
           fetch-depth: 0
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: lts/*
           package-manager-cache: false
