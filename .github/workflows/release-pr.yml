@@ -1,0 +1,103 @@
+name: release-pr
+
+# Phase 1 of the release flow. Bumps the version, pushes the release
+# commit to a release/vX.Y.Z branch, and opens a PR to main with
+# auto-merge + squash. Once the maintainer approves (required by
+# branch protection) and all status checks pass, the PR merges and
+# release-publish.yml takes over to push the tag, publish to npm via
+# OIDC, and create the GitHub Release.
+on:
+  workflow_dispatch:
+    inputs:
+      increment:
+        description: "Version increment (used by release-it)"
+        required: false
+        type: choice
+        # The workflow defaults to patch. Choose "minor" (or higher)
+        # the first time you release after v0.0.5 has been removed
+        # from the orphan-tag cleanup: v0.0.5 was prematurely
+        # published to npm by the broken workflow, so the next
+        # publish must skip past it.
+        default: "patch"
+        options:
+          - patch
+          - minor
+          - major
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-pr:
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # release-it needs the full history + tags to compute the bump
+          # and write the CHANGELOG.
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          package-manager-cache: false
+      - run: npm ci || npm install
+      # GitHub Actions runners ship without a configured git
+      # identity, so configure one from the actor that dispatched the
+      # workflow (per release-it CI docs). Needed for the local commit
+      # release-it creates before we push anything.
+      - name: Configure git identity
+        run: |
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+      - name: Bump version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Run release-it with everything that touches the remote
+          # disabled. It still bumps the version in package.json,
+          # writes CHANGELOG.md, creates a local commit, and tags the
+          # commit locally. Defer git push, npm publish, and the
+          # GitHub release to release-publish.yml so the commit can
+          # reach main via a PR (branch protection requires it).
+          npx release-it --ci \
+            --increment "${{ inputs.increment }}" \
+            --no-git.push \
+            --no-npm.publish \
+            --no-github.release
+      - name: Open release PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          BRANCH="release/v${VERSION}"
+          # Push the release commit + local tag onto a release branch.
+          # The tag follows the same commit that the PR will contain,
+          # and release-publish.yml will retag onto the squash commit
+          # after merge.
+          git checkout -b "${BRANCH}"
+          git push origin "refs/tags/v${VERSION}" "${BRANCH}"
+          # Open the PR with a conventional title so commitlint + the
+          # pr-title check pass on the release PR.
+          gh pr create \
+            --base main \
+            --head "${BRANCH}" \
+            --title "chore(release): v${VERSION}" \
+            --body "Automated release PR for v${VERSION}.
+
+          Merging this PR will trigger the release-publish workflow, which will push the git tag, publish to npm via OIDC trusted publishing, and create the GitHub Release." \
+            --label release
+          # Auto-merge with squash waits for the 1 approving review (the
+          # dispatching actor can self-approve) and the required status
+          # checks (CI, commitlint, CodeQL) before merging.
+          gh pr merge --auto --squash "${BRANCH}"
