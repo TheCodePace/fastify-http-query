@@ -1,0 +1,73 @@
+name: release-publish
+
+# Phase 2 of the release flow. Triggered after a release PR is
+# squash-merged into main. Retags the merged commit, publishes the
+# package to npm via OIDC trusted publishing, and creates the GitHub
+# Release.
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+concurrency:
+  group: release-publish
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release-publish:
+    # Only run when the merged PR is one of our release PRs.
+    if: |
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.head.ref, 'release/v')
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Need tags to retarget onto the merge commit and to be able
+          # to push the tag onto HEAD (the squash-merged commit).
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+          package-manager-cache: false
+      - run: npm ci || npm install
+      # GitHub Actions runners ship without a configured git identity.
+      - name: Configure git identity
+        run: |
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+      - name: Recreate tag on the squash-merged commit and push
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v${VERSION}"
+          # Drop the stale local tag (release-it put it on the
+          # pre-merge commit) and put the tag on HEAD (the
+          # squash-merged commit). Force-update the remote tag if a
+          # prior broken run already pushed something to it.
+          git tag -d "${TAG}" 2>/dev/null || true
+          git tag "${TAG}" HEAD
+          git push origin ":refs/tags/${TAG}" 2>/dev/null || true
+          git push origin "${TAG}"
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm publish --provenance --access public
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          gh release create "v${VERSION}" \
+            --title "v${VERSION}" \
+            --generate-notes
