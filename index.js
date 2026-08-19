@@ -18,9 +18,15 @@ export const EmptyBodyError = createError(
 async function fastifyHttpQuery (fastify) {
   // `addHttpMethod` overrides existing methods, so guard against
   // registering QUERY more than once when the plugin is loaded twice.
+  // Fastify 5+ hardcodes QUERY in supportedMethods, so this branch is
+  // unreachable in the current test environment; the guard is kept for
+  // future Fastify versions / custom environments where QUERY may not yet
+  // be registered.
+  /* c8 ignore start */
   if (!fastify.supportedMethods.includes(QUERY_METHOD)) {
     fastify.addHttpMethod(QUERY_METHOD, { hasBody: true })
   }
+  /* c8 ignore stop */
 
   // Enforce the spec's server requirements before the body is parsed.
   // https://httpwg.org/http-extensions/draft-ietf-httpbis-safe-method-w-body.html
