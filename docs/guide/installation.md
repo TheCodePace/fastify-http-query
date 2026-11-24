@@ -1,5 +1,9 @@
 # Installation
 
+::: warning Deprecated
+If you are using Fastify `>= 5.11.0`, you do **not** need this plugin — HTTP `QUERY` support ([RFC 10008](https://datatracker.ietf.org/doc/html/rfc10008)) is built into Fastify core ([#6832](https://github.com/fastify/fastify/pull/6832)). Upgrade Fastify instead of installing `@thecodepace/fastify-http-query`.
+:::
+
 ```sh
 npm i @thecodepace/fastify-http-query
 ```
@@ -13,9 +17,9 @@ requests before they reach the application.
 
 ## Compatibility
 
-| Plugin version | Fastify version |
-| -------------- | --------------- |
-| `>= 1.x`       | `^5.x`          |
+| Plugin version | Fastify version   | Notes                                                                |
+| -------------- | ----------------- | -------------------------------------------------------------------- |
+| `0.x`          | `>=5.0.0 <5.11.0` | Deprecated — native `QUERY` support is built into Fastify `>=5.11.0` |
 
 When a Fastify version is out of support, so are the corresponding versions
 of this plugin. See

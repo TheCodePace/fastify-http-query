@@ -4,6 +4,13 @@
 [![NPM version](https://img.shields.io/npm/v/@thecodepace/fastify-http-query.svg?style=flat)](https://www.npmjs.com/package/@thecodepace/fastify-http-query)
 [![neostandard javascript style](https://img.shields.io/badge/code_style-neostandard-brightgreen?style=flat)](https://github.com/neostandard/neostandard)
 
+> [!WARNING]
+> **Deprecated:** This package is deprecated and no longer needed on Fastify `>= 5.11.0`.
+>
+> Native support for the HTTP `QUERY` method ([RFC 10008](https://datatracker.ietf.org/doc/html/rfc10008)) is built into Fastify core starting from **[v5.11.0](https://github.com/fastify/fastify/releases/tag/v5.11.0)** ([#6832](https://github.com/fastify/fastify/pull/6832)), including `QUERY` in `supportedMethods`, the `fastify.query()` shorthand, TypeScript types, and `Content-Type` header enforcement (`FST_ERR_ROUTE_MISSING_CONTENT_TYPE`).
+>
+> **Migration:** Upgrade to `fastify >= 5.11.0` (or `>= 5.12.6` if you rely on media types that allow an empty body, fixed in [#7060](https://github.com/fastify/fastify/pull/7060)), uninstall `@thecodepace/fastify-http-query`, and remove `app.register(fastifyHttpQuery)`. Your `app.query()` routes will work out of the box. If your code checks for this plugin's `FST_ERR_QUERY_MISSING_CONTENT_TYPE` error code, switch to Fastify's `FST_ERR_ROUTE_MISSING_CONTENT_TYPE`.
+
 > Documentation site: <https://thecodepace.github.io/fastify-http-query/>
 
 Fastify HTTP `QUERY` plugin; with this you can enable the HTTP `QUERY` method in Fastify.
@@ -27,9 +34,9 @@ so the HTTP parser accepts incoming `QUERY` requests.
 
 ### Compatibility
 
-| Plugin version | Fastify version |
-| -------------- | --------------- |
-| `>=1.x`        | `^5.x`          |
+| Plugin version | Fastify version   | Notes                                                                |
+| -------------- | ----------------- | -------------------------------------------------------------------- |
+| `0.x`          | `>=5.0.0 <5.11.0` | Deprecated — native `QUERY` support is built into Fastify `>=5.11.0` |
 
 Please note that if a Fastify version is out of support, then so are the corresponding versions of this plugin
 in the table above.
