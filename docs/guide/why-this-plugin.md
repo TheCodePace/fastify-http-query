@@ -1,9 +1,15 @@
 # Why this plugin?
 
+::: warning Deprecated
+This page describes Fastify prior to **[v5.11.0](https://github.com/fastify/fastify/releases/tag/v5.11.0)**.
+Native HTTP `QUERY` support ([RFC 10008](https://datatracker.ietf.org/doc/html/rfc10008)) is now built into Fastify core ([#6832](https://github.com/fastify/fastify/pull/6832)), so you only need this plugin if you are pinned to Fastify `5.0.0`–`5.10.x`.
+:::
+
 The HTTP parser in Node.js has accepted the `QUERY` method since
 [`http.METHODS`](https://nodejs.org/api/http.html#httpmethods) started listing
-it (Node.js `>= 22`). So the bytes come in cleanly — but Fastify's router and
-shorthand layer does not know about `QUERY` out of the box.
+it (Node.js `>= 22`). Prior to Fastify `v5.11.0`, the bytes came in cleanly —
+but Fastify's router and shorthand layer did not know about `QUERY` out of
+the box.
 
 Without this plugin you would have to:
 

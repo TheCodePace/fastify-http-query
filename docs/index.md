@@ -24,6 +24,14 @@ features:
     details: Conditional requests and caching are composed from @fastify/etag and @fastify/caching — the same way you would for GET. No bespoke cache.
 ---
 
+::: warning Deprecated
+This package is deprecated and no longer needed on Fastify `>= 5.11.0`.
+
+Native support for the HTTP `QUERY` method ([RFC 10008](https://datatracker.ietf.org/doc/html/rfc10008)) is built into Fastify core starting from **[v5.11.0](https://github.com/fastify/fastify/releases/tag/v5.11.0)** ([#6832](https://github.com/fastify/fastify/pull/6832)), including `QUERY` in `supportedMethods`, the `fastify.query()` shorthand, TypeScript types, and `Content-Type` header enforcement (`FST_ERR_ROUTE_MISSING_CONTENT_TYPE`).
+
+**Migration:** Upgrade to `fastify >= 5.11.0` (or `>= 5.12.6` if you rely on media types that allow an empty body, fixed in [#7060](https://github.com/fastify/fastify/pull/7060)), uninstall `@thecodepace/fastify-http-query`, and remove `app.register(fastifyHttpQuery)`. Your `app.query()` routes will work out of the box. If your code checks for `FST_ERR_QUERY_MISSING_CONTENT_TYPE`, switch to Fastify's `FST_ERR_ROUTE_MISSING_CONTENT_TYPE`.
+:::
+
 ## What is this?
 
 `@thecodepace/fastify-http-query` is a Fastify plugin that enables the
